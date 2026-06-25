@@ -162,7 +162,7 @@ async function callGeminiVision(systemText, userParts) {
 // videoBase64: raw base64 (no data-URL prefix). mimeType: e.g. 'video/webm'.
 // Returns { ok, score, issues } where issues = [{ tag: 'Good' | 'Fix', text }],
 // or { ok: false, error } on any failure.
-export async function formCritique(state, exerciseId, videoBase64, mimeType) {
+export async function formCritique(state, exerciseId, videoBase64, mimeType, angle = 'side') {
   const ex = getExercise(exerciseId)
   const exName = ex?.name || exerciseId
   const cues = ex?.formCues?.join('\n- ') || 'none listed'
@@ -172,7 +172,7 @@ export async function formCritique(state, exerciseId, videoBase64, mimeType) {
 
   const systemText = `${SYSTEM_BASE}\n\n${athleteCtx}`
 
-  const prompt = `Watch this short video clip of me performing the exercise "${exName}" and critique my form.
+  const prompt = `Watch this short video clip of me performing the exercise "${exName}", filmed from a ${angle} view, and critique my form.
 
 Good form cues for this exercise:
 - ${cues}

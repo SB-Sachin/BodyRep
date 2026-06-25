@@ -6,9 +6,84 @@
 import { useState, useRef, useEffect } from 'react'
 import { useStore } from '../store/useStore.js'
 import { formCritique } from '../ai/gemini.js'
+import { getExercise } from '../data/exercises.js'
 import Icon from './Icon.jsx'
 
 const MAX_SECONDS = 10
+
+// Which camera angle best reveals form faults for each movement pattern.
+// Side view shows depth, spine angle, hip sag and ROM; front view shows
+// symmetry and lateral lean. Falls back to side.
+const ANGLE_BY_PATTERN = {
+  'horizontal-press': 'side',
+  'vertical-press': 'side',
+  'vertical-pull': 'side',
+  'horizontal-pull': 'side',
+  squat: 'side',
+  hinge: 'side',
+  lunge: 'side',
+  'anti-extension': 'side',
+  compression: 'side',
+  'anti-rotation': 'front',
+  'anti-lateral-flexion': 'front',
+  'rear-delt': 'front',
+  tricep: 'side',
+}
+
+const ANGLE_HINT = {
+  side: 'Side view · stand sideways, whole body in frame, phone ~2m away at hip height',
+  front: 'Front view · face the camera, whole body in frame, phone ~2m away at chest height',
+}
+
+function cameraGuide(exercise) {
+  const angle = ANGLE_BY_PATTERN[exercise?.pattern] || 'side'
+  return { angle, hint: ANGLE_HINT[angle] }
+}
+
+// Translucent framing outline the user lines themselves up against. A neutral
+// standing figure (profile for side view, facing for front) plus corner
+// brackets — its job is distance/framing/orientation, not exact pose.
+function PoseOutline({ angle }) {
+  const stroke = 'rgba(249,115,22,0.55)' // accent at low opacity
+  const figure =
+    angle === 'front' ? (
+      <>
+        <circle cx="80" cy="20" r="7" />
+        <path d="M80 27 V54" />
+        <path d="M80 33 L67 47" />
+        <path d="M80 33 L93 47" />
+        <path d="M80 54 L71 80" />
+        <path d="M80 54 L89 80" />
+      </>
+    ) : (
+      <>
+        <circle cx="82" cy="20" r="7" />
+        <path d="M88 21 h4" /> {/* nose: faces right = sideways to camera */}
+        <path d="M80 27 V54" />
+        <path d="M80 34 L93 46" />
+        <path d="M80 54 L90 80" />
+        <path d="M80 54 L74 80" />
+      </>
+    )
+  return (
+    <svg
+      viewBox="0 0 160 90"
+      className="pointer-events-none absolute inset-0 h-full w-full"
+      fill="none"
+      stroke={stroke}
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      {/* corner framing brackets */}
+      <path d="M10 20 V10 H22" />
+      <path d="M138 10 H150 V20" />
+      <path d="M10 70 V80 H22" />
+      <path d="M138 80 H150 V70" />
+      <g style={{ strokeDasharray: '4 3' }}>{figure}</g>
+    </svg>
+  )
+}
 
 export default function FormCamera({ exerciseId, onClose }) {
   const [phase, setPhase] = useState('idle') // idle | recording | analyzing | result | error
@@ -22,6 +97,9 @@ export default function FormCamera({ exerciseId, onClose }) {
   const chunksRef = useRef([])
   const countdownRef = useRef(null)
   const mimeTypeRef = useRef('video/webm')
+
+  const exercise = getExercise(exerciseId)
+  const guide = cameraGuide(exercise)
 
   useEffect(() => {
     let cancelled = false
@@ -115,7 +193,7 @@ export default function FormCamera({ exerciseId, onClose }) {
         setPhase('error')
         return
       }
-      const res = await formCritique(store, exerciseId, base64, mime)
+      const res = await formCritique(store, exerciseId, base64, mime, guide.angle)
       if (res.ok) {
         store.recordAiCall()
         setResult({ score: res.score, issues: res.issues })
@@ -153,6 +231,13 @@ export default function FormCamera({ exerciseId, onClose }) {
           className="h-full w-full object-cover"
           style={{ transform: 'scaleX(-1)' }}
         />
+        {/* Framing guide — visible while lining up and recording, hidden once analyzing */}
+        {(phase === 'idle' || phase === 'recording') && <PoseOutline angle={guide.angle} />}
+        {(phase === 'idle' || phase === 'recording') && (
+          <div className="absolute left-2 top-2 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
+            {guide.angle} view
+          </div>
+        )}
         {phase === 'recording' && (
           <div className="absolute right-2 top-2 rounded-full bg-danger px-2 py-0.5 text-xs font-bold tnum text-white">
             {countdown}s
@@ -167,9 +252,12 @@ export default function FormCamera({ exerciseId, onClose }) {
 
       <div className="space-y-3 p-3">
         {phase === 'idle' && (
-          <button className="btn-accent w-full text-sm" onClick={startRecording}>
-            <Icon name="camera" size={16} /> Record (max {MAX_SECONDS}s)
-          </button>
+          <>
+            <p className="text-center text-[11px] leading-snug text-slate-400">{guide.hint}</p>
+            <button className="btn-accent w-full text-sm" onClick={startRecording}>
+              <Icon name="camera" size={16} /> Record (max {MAX_SECONDS}s)
+            </button>
+          </>
         )}
 
         {phase === 'recording' && (
