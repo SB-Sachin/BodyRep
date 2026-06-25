@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+/* Respect iPhone safe areas in standalone PWA mode. */
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+@layer components {
+  .card { @apply bg-surface rounded-2xl p-4 shadow-lg shadow-black/20; }
+  .btn { @apply rounded-xl px-4 py-3 font-semibold transition active:scale-95 disabled:opacity-40; }
+  .btn-accent { @apply btn bg-accent text-ink; }
+  .btn-ghost { @apply btn bg-white/5 text-slate-200; }
+  .pill { @apply rounded-full px-3 py-1 text-xs font-medium; }
+  .screen { @apply mx-auto max-w-md px-4 pb-28 safe-top; }
+}
+
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
