@@ -10,21 +10,65 @@ body {
   margin: 0;
   background: #0f172a;
   color: #e2e8f0;
+  font-family: 'Barlow', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
 }
 
+@layer base {
+  /* Athletic condensed display type for all headings. */
+  h1, h2, h3 {
+    font-family: '"Barlow Condensed"', 'Barlow', system-ui, sans-serif;
+    letter-spacing: 0.01em;
+  }
+  /* Visible, on-brand focus ring for keyboard users only. */
+  :focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #0f172a, 0 0 0 4px #f97316;
+    border-radius: 0.5rem;
+  }
+  /* Tabular figures keep timers, reps, and stats from shifting width. */
+  .tnum { font-variant-numeric: tabular-nums; }
+}
+
 /* Respect iPhone safe areas in standalone PWA mode. */
-.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-top { padding-top: max(env(safe-area-inset-top), 0.5rem); }
 .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
 @layer components {
-  .card { @apply bg-surface rounded-2xl p-4 shadow-lg shadow-black/20; }
-  .btn { @apply rounded-xl px-4 py-3 font-semibold transition active:scale-95 disabled:opacity-40; }
-  .btn-accent { @apply btn bg-accent text-ink; }
-  .btn-ghost { @apply btn bg-white/5 text-slate-200; }
-  .pill { @apply rounded-full px-3 py-1 text-xs font-medium; }
+  .card { @apply rounded-2xl border border-white/[0.06] bg-surface p-4 shadow-card; }
+
+  /* Buttons — min 44px touch target, pressed feedback, focus ring, disabled state. */
+  .btn { @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold transition-transform duration-150 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40; }
+  .btn-accent { @apply btn bg-accent text-white shadow-glow hover:bg-accent2; }
+  .btn-ghost { @apply btn border border-white/10 bg-white/5 text-slate-200 hover:bg-white/10; }
+  .btn-danger { @apply btn bg-danger/15 text-danger hover:bg-danger/25; }
+
+  .pill { @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold; }
+
+  .input { @apply w-full rounded-xl border border-white/10 bg-white/[0.06] px-4 py-3 text-slate-100 outline-none transition focus:border-accent/60 focus:ring-2 focus:ring-accent/40; }
+
+  /* Selectable option row (onboarding, equipment, schedule). */
+  .choice { @apply flex w-full items-center justify-between rounded-xl border p-3 text-left transition active:scale-[0.99]; }
+  .choice-on { @apply border-accent bg-accent/10; }
+  .choice-off { @apply border-white/10 bg-white/5 hover:bg-white/[0.08]; }
+
+  /* Segmented control button (length, days). */
+  .seg { @apply min-h-[44px] flex-1 rounded-xl border text-sm font-semibold transition active:scale-[0.97]; }
+  .seg-on { @apply border-accent bg-accent text-white shadow-glow; }
+  .seg-off { @apply border-white/10 bg-white/5 text-slate-300 hover:bg-white/10; }
+
   .screen { @apply mx-auto max-w-md px-4 pb-28 safe-top; }
 }
 
 input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+/* Honor reduced-motion: drop entrance animations and shorten transitions. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

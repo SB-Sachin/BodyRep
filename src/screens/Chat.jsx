@@ -145,7 +145,7 @@ export default function Chat() {
 
       <div className="sticky bottom-20 flex gap-2 bg-ink/95 py-2">
         <input
-          className="flex-1 rounded-xl bg-white/6 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-cyan-400 disabled:opacity-50"
+          className="input flex-1 text-sm disabled:opacity-50"
           placeholder={aiConfigured() ? 'Ask your coach…' : 'Add an API key in Settings'}
           disabled={disabled}
           value={input}

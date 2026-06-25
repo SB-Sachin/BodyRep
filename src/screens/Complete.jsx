@@ -4,6 +4,7 @@ import { useStore, computeStreak } from '../store/useStore.js'
 import { getExercise } from '../data/exercises.js'
 import { SKILL_TREES } from '../data/skillTrees.js'
 import { coachingNotes, aiConfigured } from '../ai/gemini.js'
+import Icon from '../components/Icon.jsx'
 
 export default function Complete({ session, summary }) {
   const nav = useNavigate()
@@ -16,7 +17,7 @@ export default function Complete({ session, summary }) {
 
   const getCoaching = async () => {
     const store = useStore.getState()
-    if (!store.canCallAi()) { setNotes('Daily AI limit reached (5/day). Your progress is still tracked.'); return }
+    if (!store.canCallAi()) { setNotes('You’ve used today’s AI messages. Your progress is still tracked.'); return }
     setLoadingNotes(true)
     const res = await coachingNotes(store, session)
     if (res.ok) store.recordAiCall()
@@ -25,19 +26,25 @@ export default function Complete({ session, summary }) {
   }
 
   return (
-    <div className="screen pt-12 text-center">
-      <div className="text-5xl">🎉</div>
-      <h1 className="mt-2 text-2xl font-extrabold">Workout complete!</h1>
-      <p className="text-sm text-slate-400">{summary.setsCompleted} sets done · 🔥 {streak}-day streak</p>
+    <div className="screen animate-fade-up pt-12 text-center">
+      <div className="mx-auto mb-3 flex h-16 w-16 animate-pop items-center justify-center rounded-full bg-accent text-white shadow-glow">
+        <Icon name="check" size={36} strokeWidth={3} />
+      </div>
+      <h1 className="text-3xl font-extrabold uppercase">Workout complete</h1>
+      <p className="mt-1 flex items-center justify-center gap-1.5 text-sm text-slate-400">
+        {summary.setsCompleted} sets done
+        <span className="text-slate-600">·</span>
+        <Icon name="flame" size={15} className="text-accent" /> {streak}-day streak
+      </p>
 
-      <div className="card my-5">
-        <div className="text-xs uppercase tracking-wide text-slate-400">XP earned</div>
-        <div className="text-4xl font-extrabold text-accent">+{summary.xpEarned}</div>
+      <div className="card my-5 bg-gradient-to-br from-accent/20 to-surface">
+        <div className="text-xs uppercase tracking-widest text-accent2">XP earned</div>
+        <div className="text-5xl font-extrabold tnum text-white">+{summary.xpEarned}</div>
       </div>
 
       {summary.advancements.length > 0 && (
         <div className="card mb-4 text-left">
-          <h3 className="mb-2 font-bold text-gold">⬆️ New unlocks</h3>
+          <h3 className="mb-2 flex items-center gap-2 font-bold text-gold"><Icon name="zap" size={18} /> New unlocks</h3>
           {summary.advancements.map((a, i) => {
             const ex = getExercise(a.newExerciseId)
             return (
@@ -52,7 +59,7 @@ export default function Complete({ session, summary }) {
 
       {summary.prs.length > 0 && (
         <div className="card mb-4 text-left">
-          <h3 className="mb-2 font-bold text-success">🏆 New personal records</h3>
+          <h3 className="mb-2 flex items-center gap-2 font-bold text-success"><Icon name="trophy" size={18} /> New personal records</h3>
           {summary.prs.map((p, i) => (
             <div key={i} className="text-sm">
               {getExercise(p.exerciseId)?.name}: <b>{p.reps ? `${p.reps} reps` : `${p.seconds}s`}</b>
@@ -63,7 +70,7 @@ export default function Complete({ session, summary }) {
 
       {summary.newBadges.length > 0 && (
         <div className="card mb-4 text-left">
-          <h3 className="mb-2 font-bold text-gold">🎖️ Badges earned</h3>
+          <h3 className="mb-2 flex items-center gap-2 font-bold text-gold"><Icon name="trophy" size={18} /> Badges earned</h3>
           {summary.newBadges.map((b) => (
             <div key={b.id} className="text-sm">{b.icon} <b>{b.name}</b> — {b.desc}</div>
           ))}
@@ -71,7 +78,7 @@ export default function Complete({ session, summary }) {
       )}
 
       <div className="card mb-6 text-left">
-        <h3 className="mb-2 font-bold">🤖 Coach’s notes</h3>
+        <h3 className="mb-2 flex items-center gap-2 font-bold"><Icon name="sparkle" size={18} className="text-accent" /> Coach’s notes</h3>
         {notes ? (
           <p className="text-sm text-slate-300">{notes}</p>
         ) : aiConfigured() ? (

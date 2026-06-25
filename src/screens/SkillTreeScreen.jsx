@@ -3,6 +3,7 @@ import { useStore } from '../store/useStore.js'
 import { SKILL_TREES, TREE_KEYS, describeThreshold } from '../data/skillTrees.js'
 import { getExercise } from '../data/exercises.js'
 import ExerciseDemo from '../components/ExerciseDemo.jsx'
+import Icon from '../components/Icon.jsx'
 
 export default function SkillTreeScreen() {
   const progress = useStore((s) => s.progress)
@@ -13,7 +14,7 @@ export default function SkillTreeScreen() {
   const treeState = progress.trees?.[tab] || { level: 1, activeId: null }
 
   return (
-    <div className="screen pt-8">
+    <div className="screen animate-fade-up pt-8">
       <h1 className="mb-1 text-2xl font-extrabold">Skill Trees</h1>
       <p className="mb-4 text-sm text-slate-400">Earn the next variation by hitting its threshold on 2 sessions in a row.</p>
 
@@ -34,7 +35,7 @@ export default function SkillTreeScreen() {
             <div key={lvl.level} className={`card ${unlocked ? '' : 'opacity-50'}`}>
               <div className="mb-2 flex items-center justify-between">
                 <span className="text-sm font-bold" style={{ color: tree.color }}>Level {lvl.level} · {lvl.name}</span>
-                {!unlocked && <span className="pill bg-white/5 text-slate-500">🔒 Locked</span>}
+                {!unlocked && <span className="pill bg-white/5 text-slate-500"><Icon name="lock" size={12} /> Locked</span>}
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {lvl.exercises.map((id) => {

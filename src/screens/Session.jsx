@@ -6,6 +6,7 @@ import { generateSession } from '../engine/workoutEngine.js'
 import { getExercise } from '../data/exercises.js'
 import { EQUIPMENT_OPTIONS } from '../data/gamification.js'
 import ExerciseDemo from '../components/ExerciseDemo.jsx'
+import Icon from '../components/Icon.jsx'
 import Complete from './Complete.jsx'
 
 export default function Session() {
@@ -70,7 +71,7 @@ function Setup({ today, equipment, setEquipment, length, setLength, conditioning
     setEquipment(next)
   }
   return (
-    <div className="screen pt-10">
+    <div className="screen animate-fade-up pt-10">
       <h1 className="mb-1 text-2xl font-extrabold">{today?.label || 'Bonus Workout'}</h1>
       <p className="mb-6 text-sm text-slate-400">{today?.focus || 'Full-body session'} · adjust today’s setup below.</p>
 
@@ -99,7 +100,7 @@ function Setup({ today, equipment, setEquipment, length, setLength, conditioning
           <div className="font-semibold">Conditioning mode</div>
           <div className="text-xs text-slate-400">Shorter 60s rests for a faster session</div>
         </div>
-        <input type="checkbox" checked={conditioning} onChange={(e) => setConditioning(e.target.checked)} className="h-5 w-5 accent-cyan-400" />
+        <input type="checkbox" checked={conditioning} onChange={(e) => setConditioning(e.target.checked)} className="h-5 w-5 accent-accent" />
       </label>
 
       <div className="flex gap-3">
@@ -162,10 +163,10 @@ function Player({ session, onFinish, onAbort }) {
   const progressPct = Math.round(((exIndex + setsDone / ex.sets) / session.exercises.length) * 100)
 
   return (
-    <div className="screen pt-8">
+    <div className="screen animate-fade-up pt-8">
       <div className="mb-4 flex items-center justify-between">
-        <button className="text-sm text-slate-400" onClick={onAbort}>✕ Quit</button>
-        <div className="text-sm text-slate-400">Exercise {exIndex + 1} / {session.exercises.length}</div>
+        <button className="flex items-center gap-1 text-sm text-slate-400 hover:text-slate-200" onClick={onAbort}><Icon name="x" size={16} /> Quit</button>
+        <div className="text-sm font-semibold tnum text-slate-400">Exercise {exIndex + 1} / {session.exercises.length}</div>
       </div>
       <div className="mb-5 h-1.5 w-full rounded-full bg-white/10">
         <div className="h-full rounded-full bg-accent transition-all" style={{ width: `${progressPct}%` }} />
@@ -189,20 +190,20 @@ function Player({ session, onFinish, onAbort }) {
             <div className="card mb-4">
               <div className="mb-3 text-center text-sm text-slate-400">How many {isTime ? 'seconds' : 'reps'} did you complete?</div>
               <div className="mb-4 flex items-center justify-center gap-4">
-                <button className="h-11 w-11 rounded-full bg-white/10 text-xl" onClick={() => setVal((v) => Math.max(0, Number(v) - 1))}>−</button>
-                <input type="number" value={val} onChange={(e) => setVal(e.target.value)}
-                  className="w-20 bg-transparent text-center text-4xl font-extrabold outline-none" />
-                <button className="h-11 w-11 rounded-full bg-white/10 text-xl" onClick={() => setVal((v) => Number(v) + 1)}>+</button>
+                <button aria-label="Decrease" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 active:scale-95" onClick={() => setVal((v) => Math.max(0, Number(v) - 1))}><Icon name="minus" size={20} /></button>
+                <input type="number" inputMode="numeric" value={val} onChange={(e) => setVal(e.target.value)}
+                  className="w-24 bg-transparent text-center text-5xl font-extrabold tnum outline-none" />
+                <button aria-label="Increase" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 active:scale-95" onClick={() => setVal((v) => Number(v) + 1)}><Icon name="plus" size={20} /></button>
               </div>
               <button className="btn-accent w-full" onClick={() => logSet()}>Log set</button>
               <div className="mt-3 flex gap-2">
-                <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('easy')}>👍 Too easy</button>
-                <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('hard')}>😮‍💨 Too hard</button>
+                <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('easy')}>Too easy</button>
+                <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('hard')}>Too hard</button>
               </div>
             </div>
           ) : (
             <button className="btn-accent mb-4 w-full" onClick={nextExercise}>
-              {exIndex < session.exercises.length - 1 ? 'Next exercise →' : 'Finish workout 🏁'}
+              {exIndex < session.exercises.length - 1 ? <>Next exercise <Icon name="arrowRight" size={18} /></> : <>Finish workout <Icon name="flag" size={18} /></>}
             </button>
           )}
 
@@ -239,7 +240,7 @@ function FormCues({ meta }) {
         <>
           <h3 className="mb-1 mt-3 text-sm font-bold text-danger">Avoid</h3>
           <ul className="space-y-1 text-sm text-slate-400">
-            {meta.mistakes.map((c, i) => <li key={i} className="flex gap-2"><span className="text-danger">✕</span>{c}</li>)}
+            {meta.mistakes.map((c, i) => <li key={i} className="flex gap-2"><span className="mt-0.5 shrink-0 text-danger"><Icon name="x" size={14} strokeWidth={2.5} /></span>{c}</li>)}
           </ul>
         </>
       )}

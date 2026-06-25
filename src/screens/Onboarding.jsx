@@ -37,8 +37,8 @@ export default function Onboarding() {
   const program = programForDays(form.daysPerWeek)
 
   return (
-    <div className="screen pt-10">
-      <div className="mb-2 text-3xl font-extrabold tracking-tight">BodyRep</div>
+    <div className="screen animate-fade-up pt-10">
+      <div className="mb-2 text-4xl font-extrabold uppercase tracking-tight">Body<span className="text-accent">Rep</span></div>
       <p className="mb-6 text-sm text-slate-400">Build visible muscle and real strength with bodyweight training. Let’s set you up.</p>
 
       <div className="mb-6 flex gap-1.5">
@@ -122,8 +122,6 @@ export default function Onboarding() {
         {step > 0 && <button className="btn-ghost flex-1" onClick={() => setStep(step - 1)}>Back</button>}
         <button className="btn-accent flex-[2]" onClick={next}>{last ? 'Start training' : 'Continue'}</button>
       </div>
-
-      <style>{`.input{width:100%;background:rgba(255,255,255,.06);border-radius:.75rem;padding:.75rem 1rem;color:#e2e8f0;outline:none}.input:focus{box-shadow:0 0 0 2px #22d3ee}`}</style>
     </div>
   )
 }

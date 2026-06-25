@@ -41,7 +41,7 @@ export default function Progress() {
   const longest = longestStreak(history)
 
   return (
-    <div className="screen pt-8">
+    <div className="screen animate-fade-up pt-8">
       <h1 className="mb-4 text-2xl font-extrabold">Progress</h1>
 
       <div className="card mb-4">
@@ -60,7 +60,7 @@ export default function Progress() {
               <YAxis domain={['dataMin - 3', 'dataMax + 3']} tick={{ fontSize: 10, fill: '#64748b' }} />
               <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8 }} />
               {profile.targetWeight && <ReferenceLine y={profile.targetWeight} stroke="#fbbf24" strokeDasharray="4 4" />}
-              <Line type="monotone" dataKey="weight" stroke="#22d3ee" strokeWidth={2.5} dot={{ r: 3 }} />
+              <Line type="monotone" dataKey="weight" stroke="#f97316" strokeWidth={2.5} dot={{ r: 3 }} />
             </LineChart>
           </ResponsiveContainer>
         ) : (
@@ -81,7 +81,7 @@ export default function Progress() {
             <XAxis dataKey="week" tick={{ fontSize: 10, fill: '#64748b' }} />
             <YAxis allowDecimals={false} tick={{ fontSize: 10, fill: '#64748b' }} />
             <Tooltip contentStyle={{ background: '#1e293b', border: 'none', borderRadius: 8 }} />
-            <Bar dataKey="workouts" fill="#22d3ee" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="workouts" fill="#f97316" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

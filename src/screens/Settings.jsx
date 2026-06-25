@@ -55,13 +55,13 @@ export default function Settings() {
   }
 
   return (
-    <div className="screen pt-8">
+    <div className="screen animate-fade-up pt-8">
       <h1 className="mb-4 text-2xl font-extrabold">Settings</h1>
 
       <Section title="Log body weight">
         <div className="flex gap-2">
           <input type="number" inputMode="decimal" placeholder={`Current: ${profile.weight ?? '—'} lbs`}
-            className="flex-1 rounded-xl bg-white/6 px-4 py-3 outline-none focus:ring-2 focus:ring-cyan-400"
+            className="flex-1 rounded-xl bg-white/6 px-4 py-3 outline-none focus:ring-2 focus:ring-accent/40"
             value={w} onChange={(e) => setW(e.target.value)} />
           <button className="btn-accent" onClick={() => { if (w) { logWeight(w); setW(''); setMsg('Weight logged.') } }}>Log</button>
         </div>

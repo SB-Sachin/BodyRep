@@ -50,6 +50,10 @@ The app is a layered, mostly-pure domain core wrapped by a Zustand store and Rea
 
 **`src/screens/` + `src/App.jsx`** — `App.jsx` gates on `hydrated` then `onboarded`; unboarded users see `Onboarding`, otherwise react-router routes to Home/Session/Progress/SkillTree/Coach/Settings with a persistent `BottomNav`.
 
+## Design system
+
+Athletic/gamified dark theme. Tokens live in `tailwind.config.js`: brand color is `accent` (energetic orange `#f97316`) — use it for CTAs/active states, never a raw hex. The four skill trees keep their own semantic colors (`push`/`pull`/`legs`/`core`) defined both in the Tailwind palette and in `skillTrees.js`; don't repaint those with the brand color. Headings use Barlow Condensed (`font-display`, applied to `h1/h2/h3` in `index.css` base), body uses Barlow. Reusable component classes (`.btn`/`.btn-accent`/`.btn-ghost`/`.btn-danger`, `.card`, `.input`, `.choice`, `.seg`, `.pill`) are defined in `src/index.css` — prefer them over ad-hoc utility soup. **Never use emoji as structural/UI icons** — use `src/components/Icon.jsx` (inline SVG, stroke-based, `currentColor`). Emoji that come from data (badge/equipment `icon` fields) are content and stay for now. `index.css` honors `prefers-reduced-motion`; keep transitions 150–300ms.
+
 ## Conventions
 
 - Keep engine/progression functions pure and immutable (clone, don't mutate); the store is the only place that calls `set` and persists.

@@ -4,6 +4,7 @@ import { PROGRAMS, sessionForToday } from '../data/programs.js'
 import { nextTier } from '../data/gamification.js'
 import { getExercise } from '../data/exercises.js'
 import { dateKey } from '../utils/dates.js'
+import Icon from '../components/Icon.jsx'
 
 export default function Home() {
   const nav = useNavigate()
@@ -27,15 +28,15 @@ export default function Home() {
   const nt = nextTier(xp)
 
   return (
-    <div className="screen pt-8">
+    <div className="screen animate-fade-up pt-8">
       <header className="mb-5 flex items-center justify-between">
         <div>
           <div className="text-sm text-slate-400">{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}</div>
           <h1 className="text-2xl font-extrabold tracking-tight">Ready to train?</h1>
         </div>
-        <div className="flex items-center gap-1 rounded-full bg-white/5 px-3 py-1.5">
-          <span className="text-lg">🔥</span>
-          <span className="font-bold">{streak}</span>
+        <div className="flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1.5">
+          <Icon name="flame" size={18} className={streak > 0 ? 'text-accent' : 'text-slate-500'} />
+          <span className="font-bold tnum">{streak}</span>
         </div>
       </header>
 
@@ -64,8 +65,8 @@ export default function Home() {
 
       {doneToday && (
         <div className="card mb-4 text-center">
-          <div className="text-3xl">✅</div>
-          <h2 className="mt-1 text-lg font-bold">Workout complete</h2>
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-success/15 text-success"><Icon name="check" size={26} strokeWidth={2.5} /></div>
+          <h2 className="mt-2 text-lg font-bold">Workout complete</h2>
           <p className="text-sm text-slate-400">Nice work today. Recovery is where the muscle gets built.</p>
           <button className="btn-ghost mt-3 w-full" onClick={() => nav('/session')}>Train again (bonus)</button>
         </div>
@@ -73,22 +74,22 @@ export default function Home() {
 
       {!doneToday && (isPlannedRest || !today) && (
         <div className="card mb-4 text-center">
-          <div className="text-3xl">😴</div>
-          <h2 className="mt-1 text-lg font-bold">Rest day</h2>
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/5 text-slate-300"><Icon name="rest" size={26} /></div>
+          <h2 className="mt-2 text-lg font-bold">Rest day</h2>
           <p className="text-sm text-slate-400">No session scheduled. Rest days don’t break your streak.</p>
           <button className="btn-ghost mt-3 w-full" onClick={() => nav('/session')}>Train anyway</button>
         </div>
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        <button className="card text-left" onClick={() => nav('/skills')}>
-          <div className="text-xl">🌳</div>
-          <div className="mt-1 font-semibold">Skill Trees</div>
+        <button className="card text-left transition active:scale-[0.98]" onClick={() => nav('/skills')}>
+          <div className="text-accent"><Icon name="skills" size={24} /></div>
+          <div className="mt-2 font-semibold">Skill Trees</div>
           <div className="text-xs text-slate-400">See your unlocks</div>
         </button>
-        <button className="card text-left" onClick={() => nav('/progress')}>
-          <div className="text-xl">📈</div>
-          <div className="mt-1 font-semibold">Progress</div>
+        <button className="card text-left transition active:scale-[0.98]" onClick={() => nav('/progress')}>
+          <div className="text-accent"><Icon name="progress" size={24} /></div>
+          <div className="mt-2 font-semibold">Progress</div>
           <div className="text-xs text-slate-400">Weight & PRs</div>
         </button>
       </div>
@@ -115,8 +116,8 @@ function Ring({ pct }) {
   return (
     <svg width="64" height="64" viewBox="0 0 64 64">
       <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(255,255,255,.1)" strokeWidth="6" />
-      <circle cx="32" cy="32" r={r} fill="none" stroke="#22d3ee" strokeWidth="6" strokeLinecap="round"
-        strokeDasharray={c} strokeDashoffset={c - (c * pct) / 100} transform="rotate(-90 32 32)" />
+      <circle cx="32" cy="32" r={r} fill="none" stroke="#f97316" strokeWidth="6" strokeLinecap="round"
+        strokeDasharray={c} strokeDashoffset={c - (c * pct) / 100} transform="rotate(-90 32 32)" style={{ transition: 'stroke-dashoffset .5s ease' }} />
       <text x="32" y="37" textAnchor="middle" fontSize="15" fontWeight="700" fill="#e2e8f0">{pct}%</text>
     </svg>
   )
