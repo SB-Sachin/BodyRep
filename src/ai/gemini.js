@@ -123,6 +123,87 @@ async function call(turns, state, { maxTokens = 1024, temperature = 0.7 } = {}) 
   }
 }
 
+// Vision variant of call() — same systemInstruction pattern, but the user turn
+// is a raw parts array that may include inlineData (e.g. a video clip). Thinking
+// stays disabled (thinkingBudget: 0) so the visible reply isn't truncated.
+async function callGeminiVision(systemText, userParts) {
+  if (!aiConfigured()) {
+    return { ok: false, error: 'no-key', text: 'Add your Gemini API key to enable AI coaching (see Settings).' }
+  }
+  if (!navigator.onLine) {
+    return { ok: false, error: 'offline', text: 'AI coaching needs a connection.' }
+  }
+  try {
+    const res = await fetch(`${ENDPOINT}?key=${API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemText }] },
+        contents: [{ role: 'user', parts: userParts }],
+        generationConfig: { maxOutputTokens: 512, temperature: 0.4, thinkingConfig: { thinkingBudget: 0 } },
+      }),
+    })
+    if (!res.ok) {
+      const body = await res.text()
+      return { ok: false, error: `http-${res.status}`, text: `AI request failed (${res.status}). ${res.status === 429 ? 'Daily rate limit reached — try again later.' : 'Please try again.'}`.trim(), detail: body }
+    }
+    const data = await res.json()
+    const text = (data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join('') || '').trim()
+    if (!text) {
+      return { ok: false, error: 'empty', text: 'The coach didn’t return a reply — try again.' }
+    }
+    return { ok: true, text }
+  } catch (e) {
+    return { ok: false, error: 'network', text: 'Could not reach the AI service. Check your connection and try again.' }
+  }
+}
+
+// Analyze a short exercise video clip and return structured form feedback.
+// videoBase64: raw base64 (no data-URL prefix). mimeType: e.g. 'video/webm'.
+// Returns { ok, score, issues } where issues = [{ tag: 'Good' | 'Fix', text }],
+// or { ok: false, error } on any failure.
+export async function formCritique(state, exerciseId, videoBase64, mimeType) {
+  const ex = getExercise(exerciseId)
+  const exName = ex?.name || exerciseId
+  const cues = ex?.formCues?.join('\n- ') || 'none listed'
+  const mistakes = ex?.mistakes?.join('\n- ') || 'none listed'
+  const { profile } = state
+  const athleteCtx = `Athlete: age ${profile?.age ?? '?'}, weight ${profile?.weight ?? '?'}kg, self-rated level ${profile?.fitnessLevel || 'beginner'}, goal is to GAIN muscle and build strength.`
+
+  const systemText = `${SYSTEM_BASE}\n\n${athleteCtx}`
+
+  const prompt = `Watch this short video clip of me performing the exercise "${exName}" and critique my form.
+
+Good form cues for this exercise:
+- ${cues}
+
+Common mistakes to watch for:
+- ${mistakes}
+
+Respond in EXACTLY this format and nothing else — no intro, no markdown headers:
+SCORE: N/10
+- [Good] one specific thing I did correctly
+- [Fix] one specific correction with an actionable cue
+- [Fix] another correction (only if needed)
+
+Use 2-3 bullet lines total. Every line must start with [Good] or [Fix].`
+
+  const raw = await callGeminiVision(systemText, [
+    { text: prompt },
+    { inlineData: { mimeType, data: videoBase64 } },
+  ])
+  if (!raw.ok) return { ok: false, error: raw.text }
+
+  const scoreMatch = raw.text.match(/SCORE:\s*(\d+)\s*\/\s*10/i)
+  const score = scoreMatch ? parseInt(scoreMatch[1], 10) : null
+  const issues = [...raw.text.matchAll(/^-\s*\[(Good|Fix)\]\s*(.+)$/gim)].map((m) => ({ tag: m[1], text: m[2].trim() }))
+
+  if (score === null || issues.length === 0) {
+    return { ok: false, error: `Unexpected response format: ${raw.text.slice(0, 120)}` }
+  }
+  return { ok: true, score, issues }
+}
+
 // ---- The five AI use cases (PRD) ----
 
 export function coachingNotes(state, session) {

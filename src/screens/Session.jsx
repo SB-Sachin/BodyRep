@@ -7,6 +7,8 @@ import { getExercise } from '../data/exercises.js'
 import { EQUIPMENT_OPTIONS } from '../data/gamification.js'
 import ExerciseDemo from '../components/ExerciseDemo.jsx'
 import Icon from '../components/Icon.jsx'
+import FormCamera from '../components/FormCamera.jsx'
+import { aiConfigured } from '../ai/gemini.js'
 import Complete from './Complete.jsx'
 
 export default function Session() {
@@ -116,6 +118,7 @@ function Player({ session, onFinish, onAbort }) {
   const [data, setData] = useState(() => session.exercises.map(() => []))
   const [resting, setResting] = useState(false)
   const [restLeft, setRestLeft] = useState(0)
+  const [showFormCamera, setShowFormCamera] = useState(false)
   const timerRef = useRef(null)
 
   const ex = session.exercises[exIndex]
@@ -126,6 +129,8 @@ function Player({ session, onFinish, onAbort }) {
   const [val, setVal] = useState(defaultVal)
 
   useEffect(() => { setVal(defaultVal) }, [exIndex, defaultVal])
+  // Close the form-check overlay whenever we move to a different exercise.
+  useEffect(() => { setShowFormCamera(false) }, [exIndex])
 
   useEffect(() => {
     if (!resting) return
@@ -207,7 +212,17 @@ function Player({ session, onFinish, onAbort }) {
             </button>
           )}
 
+          {aiConfigured() && (
+            <button className="btn-ghost mb-4 w-full text-sm" onClick={() => setShowFormCamera(true)}>
+              <Icon name="camera" size={16} /> Form Check
+            </button>
+          )}
+
           <FormCues meta={meta} />
+
+          {showFormCamera && (
+            <FormCamera exerciseId={ex.exerciseId} onClose={() => setShowFormCamera(false)} />
+          )}
         </>
       )}
     </div>
