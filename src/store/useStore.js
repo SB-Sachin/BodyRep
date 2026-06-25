@@ -7,7 +7,7 @@ import {
   XP_PER_SESSION, XP_PER_SET, WEEKLY_XP_GOAL_PER_DAY, BADGES, tierForXp,
 } from '../data/gamification.js'
 
-const AI_DAILY_CAP = 5
+const AI_DAILY_CAP = 50
 
 const blank = {
   hydrated: false,
@@ -30,6 +30,7 @@ const blank = {
   lastWorkoutDate: null,
   decayAppliedFor: null,
   ai: { date: dateKey(), count: 0, weeklySummary: null }, // weeklySummary: {week, text}
+  chat: [],             // persisted coach conversation [{ id, role:'user'|'ai', text, ts, error? }]
 }
 
 // Persist only the data slice. `blank` is the data shape, so the persisted keys
@@ -235,6 +236,18 @@ export const useStore = create((set, get) => ({
   },
   cacheWeeklySummary(text) {
     set({ ai: { ...get().ai, weeklySummary: { week: weekKey(), text } } })
+    scheduleSave(get)
+  },
+
+  // ---- Coach chat (persisted) ----
+  addChatMessage(msg) {
+    const m = { id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, ts: Date.now(), ...msg }
+    set({ chat: [...get().chat, m] })
+    scheduleSave(get)
+    return m
+  },
+  clearChat() {
+    set({ chat: [] })
     scheduleSave(get)
   },
 

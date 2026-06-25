@@ -22,7 +22,11 @@ This repo auto-deploys to Vercel on every push to `main`. After making code chan
 
 ## AI configuration
 
-AI coaching is optional; the app is fully functional without it. To enable, set `VITE_GEMINI_API_KEY` in `.env` (copy from `.env.example`). Optional `VITE_GEMINI_MODEL` overrides the default `gemini-1.5-flash`. Calls are capped at 5/day client-side (enforced in the store, not the AI module) to stay in the free tier.
+AI coaching is optional; the app is fully functional without it. To enable, set `VITE_GEMINI_API_KEY` in `.env`. Optional `VITE_GEMINI_MODEL` overrides the default `gemini-2.5-flash`. Calls are capped at `AI_DAILY_CAP` (50) per day client-side (enforced in the store, not the AI module) to stay in the free tier.
+
+`VITE_` vars are baked in at **build time**, not read at runtime — changing a Gemini env var on Vercel requires a redeploy to take effect.
+
+Two model gotchas baked into `gemini.js`: (1) the model name must be a currently-served one (`gemini-1.5-flash` was retired and 404s — verify with the ListModels endpoint when in doubt); (2) `gemini-2.5-flash` is a thinking model, so `thinkingConfig.thinkingBudget` is set to `0` — otherwise hidden reasoning consumes the entire `maxOutputTokens` budget and the visible reply comes back truncated/empty.
 
 ## Architecture
 
