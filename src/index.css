@@ -13,6 +13,11 @@ body {
   font-family: 'Barlow', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   overscroll-behavior-y: none;
+  /* Push all content below the iOS status bar / Dynamic Island in standalone PWA
+     mode. Per-screen pt-* utilities override .screen's safe-top, so the inset is
+     applied here once at the document level (border-box via Tailwind preflight
+     means no overflow). 0 in a normal browser. */
+  padding-top: env(safe-area-inset-top);
 }
 
 @layer base {

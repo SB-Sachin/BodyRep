@@ -8,6 +8,7 @@ import { EQUIPMENT_OPTIONS } from '../data/gamification.js'
 import ExerciseDemo from '../components/ExerciseDemo.jsx'
 import Icon from '../components/Icon.jsx'
 import FormCamera from '../components/FormCamera.jsx'
+import FormVideo from '../components/FormVideo.jsx'
 import { aiConfigured } from '../ai/gemini.js'
 import { ensureNotifyPermission, scheduleNotification, cancelNotification, buzz } from '../utils/timers.js'
 import Complete from './Complete.jsx'
@@ -328,6 +329,10 @@ function Player({ session, onFinish, onAbort }) {
               {exIndex < session.exercises.length - 1 ? <>Next exercise <Icon name="arrowRight" size={18} /></> : <>Finish workout <Icon name="flag" size={18} /></>}
             </button>
           )}
+
+          <div className="mb-4">
+            <FormVideo exercise={meta} />
+          </div>
 
           {aiConfigured() && (
             <button className="btn-ghost mb-4 w-full text-sm" onClick={() => setShowFormCamera(true)}>

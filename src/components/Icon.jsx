@@ -24,10 +24,11 @@ const PATHS = {
   download: <><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" /></>,
   trash: <><path d="M4 7h16" /><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" /><path d="M6 7l1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13" /></>,
   camera: <><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z" /><circle cx="12" cy="13" r="4" /></>,
+  play: <path d="M7 4v16l13-8z" />,
 }
 
 export default function Icon({ name, size = 22, className = '', strokeWidth = 1.75, ...rest }) {
-  const fillIcons = new Set(['flame', 'zap', 'sparkle'])
+  const fillIcons = new Set(['flame', 'zap', 'sparkle', 'play'])
   const filled = fillIcons.has(name)
   return (
     <svg

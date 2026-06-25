@@ -3,6 +3,7 @@ import { useStore } from '../store/useStore.js'
 import { SKILL_TREES, TREE_KEYS, describeThreshold } from '../data/skillTrees.js'
 import { getExercise } from '../data/exercises.js'
 import ExerciseDemo from '../components/ExerciseDemo.jsx'
+import FormVideo from '../components/FormVideo.jsx'
 import Icon from '../components/Icon.jsx'
 
 export default function SkillTreeScreen() {
@@ -80,6 +81,10 @@ function DetailSheet({ id, progress, onClose }) {
           {'★'.repeat(ex.difficulty)} · {ex.muscles.primary.join(', ')}
         </div>
         <p className="mb-3 text-sm text-slate-300">{ex.description}</p>
+
+        <div className="mb-3">
+          <FormVideo exercise={ex} />
+        </div>
 
         <div className="mb-3 grid grid-cols-2 gap-2 text-sm">
           <Stat label="Lifetime reps" value={eState?.totalReps || 0} />
