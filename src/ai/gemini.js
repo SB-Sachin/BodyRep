@@ -6,7 +6,7 @@ import { getExercise } from '../data/exercises.js'
 import { TREE_KEYS } from '../data/skillTrees.js'
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY
-const MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-1.5-flash'
+const MODEL = import.meta.env.VITE_GEMINI_MODEL || 'gemini-2.5-flash'
 const ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`
 
 export function aiConfigured() {
