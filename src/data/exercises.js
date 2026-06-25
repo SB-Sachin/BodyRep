@@ -10,6 +10,7 @@ export const EXERCISES = [
   {
     id: 'incline-pushup',
     name: 'Incline Push-Up',
+    videoId: 'NEdo_I3OuVk',
     category: 'push',
     pattern: 'horizontal-press',
     level: 1,
@@ -31,6 +32,7 @@ export const EXERCISES = [
   {
     id: 'knee-pushup',
     name: 'Knee Push-Up',
+    videoId: 'rrVwNeIpy-k',
     category: 'push',
     pattern: 'horizontal-press',
     level: 1,
@@ -51,6 +53,7 @@ export const EXERCISES = [
   {
     id: 'standard-pushup',
     name: 'Standard Push-Up',
+    videoId: 'c-lBErfxszs',
     category: 'push',
     pattern: 'horizontal-press',
     level: 2,
@@ -72,6 +75,7 @@ export const EXERCISES = [
   {
     id: 'pike-pushup',
     name: 'Pike Push-Up',
+    videoId: 'V6BtY3Lt0Ys',
     category: 'push',
     pattern: 'vertical-press',
     level: 2,
@@ -92,6 +96,7 @@ export const EXERCISES = [
   {
     id: 'decline-pushup',
     name: 'Decline Push-Up',
+    videoId: '7vbNMc3-CV8',
     category: 'push',
     pattern: 'horizontal-press',
     level: 3,
@@ -112,6 +117,7 @@ export const EXERCISES = [
   {
     id: 'diamond-pushup',
     name: 'Diamond Push-Up',
+    videoId: 'PPTj-MW2tcs',
     category: 'push',
     pattern: 'horizontal-press',
     level: 3,
@@ -132,6 +138,7 @@ export const EXERCISES = [
   {
     id: 'parallel-bar-dip',
     name: 'Parallel Bar Dip',
+    videoId: '_HxxBada6Jw',
     category: 'push',
     pattern: 'horizontal-press',
     level: 3,
@@ -152,6 +159,7 @@ export const EXERCISES = [
   {
     id: 'archer-pushup',
     name: 'Archer Push-Up',
+    videoId: 'mzr0RYNDzzI',
     category: 'push',
     pattern: 'horizontal-press',
     level: 4,
@@ -173,6 +181,7 @@ export const EXERCISES = [
   {
     id: 'bw-tricep-extension',
     name: 'Bodyweight Tricep Extension',
+    videoId: 'N1480-oD0ek',
     category: 'push',
     pattern: 'tricep',
     level: 4,
@@ -193,6 +202,7 @@ export const EXERCISES = [
   {
     id: 'wall-handstand-pushup',
     name: 'Wall Handstand Push-Up',
+    videoId: 'gSjHRuRQ4hk',
     category: 'push',
     pattern: 'vertical-press',
     level: 5,
@@ -213,6 +223,7 @@ export const EXERCISES = [
   {
     id: 'one-arm-pushup',
     name: 'One-Arm Push-Up',
+    videoId: 'bh9PsSfGZ2o',
     category: 'push',
     pattern: 'horizontal-press',
     level: 5,
@@ -232,6 +243,7 @@ export const EXERCISES = [
   {
     id: 'dead-hang',
     name: 'Dead Hang',
+    videoId: '9eY15prKcUY',
     category: 'pull',
     pattern: 'vertical-pull',
     level: 1,
@@ -248,6 +260,7 @@ export const EXERCISES = [
   {
     id: 'scapular-pullup',
     name: 'Scapular Pull-Up',
+    videoId: '9M8ylnbriB0',
     category: 'pull',
     pattern: 'vertical-pull',
     level: 1,
@@ -264,6 +277,7 @@ export const EXERCISES = [
   {
     id: 'australian-row',
     name: 'Australian Row (Inverted Row)',
+    videoId: 'x0smcDVyqik',
     category: 'pull',
     pattern: 'horizontal-pull',
     level: 2,
@@ -285,6 +299,7 @@ export const EXERCISES = [
   {
     id: 'negative-pullup',
     name: 'Negative Pull-Up',
+    videoId: 'IMvvF2PsIzM',
     category: 'pull',
     pattern: 'vertical-pull',
     level: 2,
@@ -301,6 +316,7 @@ export const EXERCISES = [
   {
     id: 'chinup',
     name: 'Chin-Up',
+    videoId: 'Oi3bW9nQmGI',
     category: 'pull',
     pattern: 'vertical-pull',
     level: 3,
@@ -317,6 +333,7 @@ export const EXERCISES = [
   {
     id: 'pullup',
     name: 'Pull-Up',
+    videoId: 'l6-aIZTbAR0',
     category: 'pull',
     pattern: 'vertical-pull',
     level: 3,
@@ -338,6 +355,7 @@ export const EXERCISES = [
   {
     id: 'wide-grip-pullup',
     name: 'Wide-Grip Pull-Up',
+    videoId: 'rJENeh0j-X4',
     category: 'pull',
     pattern: 'vertical-pull',
     level: 4,
@@ -354,6 +372,7 @@ export const EXERCISES = [
   {
     id: 'lsit-pullup',
     name: 'L-Sit Pull-Up',
+    videoId: '1uzAbJYs_YI',
     category: 'pull',
     pattern: 'vertical-pull',
     level: 4,
@@ -370,6 +389,7 @@ export const EXERCISES = [
   {
     id: 'archer-pullup',
     name: 'Archer Pull-Up',
+    videoId: 'R_drd0U3knE',
     category: 'pull',
     pattern: 'vertical-pull',
     level: 5,
@@ -387,6 +407,7 @@ export const EXERCISES = [
   {
     id: 'one-arm-pullup',
     name: 'One-Arm Pull-Up',
+    videoId: 'R3FhoKNDJag',
     category: 'pull',
     pattern: 'vertical-pull',
     level: 5,
@@ -404,6 +425,7 @@ export const EXERCISES = [
   {
     id: 'face-pull-band',
     name: 'Face Pull (Band or Towel)',
+    videoId: '-iPCIEEl_X4',
     category: 'pull',
     pattern: 'rear-delt',
     level: 1,
@@ -422,6 +444,7 @@ export const EXERCISES = [
   {
     id: 'bodyweight-squat',
     name: 'Bodyweight Squat',
+    videoId: 'eFEVKmp3M4g',
     category: 'legs',
     pattern: 'squat',
     level: 1,
@@ -438,6 +461,7 @@ export const EXERCISES = [
   {
     id: 'glute-bridge',
     name: 'Glute Bridge',
+    videoId: 'ktSiNvWzYWY',
     category: 'legs',
     pattern: 'hinge',
     level: 1,
@@ -454,6 +478,7 @@ export const EXERCISES = [
   {
     id: 'reverse-lunge',
     name: 'Reverse Lunge',
+    videoId: '38xlLGfguz4',
     category: 'legs',
     pattern: 'lunge',
     level: 1,
@@ -471,6 +496,7 @@ export const EXERCISES = [
   {
     id: 'pause-squat',
     name: 'Pause Squat',
+    videoId: 'bxU4rkLDTrE',
     category: 'legs',
     pattern: 'squat',
     level: 2,
@@ -487,6 +513,7 @@ export const EXERCISES = [
   {
     id: 'single-leg-glute-bridge',
     name: 'Single-Leg Glute Bridge',
+    videoId: 'n1IZ168x2Bw',
     category: 'legs',
     pattern: 'hinge',
     level: 2,
@@ -504,6 +531,7 @@ export const EXERCISES = [
   {
     id: 'wall-sit',
     name: 'Wall Sit',
+    videoId: 'LCRxFK5dJKY',
     category: 'legs',
     pattern: 'squat',
     level: 2,
@@ -520,6 +548,7 @@ export const EXERCISES = [
   {
     id: 'bulgarian-split-squat',
     name: 'Bulgarian Split Squat',
+    videoId: 'or1frhkjBDc',
     category: 'legs',
     pattern: 'squat',
     level: 3,
@@ -537,6 +566,7 @@ export const EXERCISES = [
   {
     id: 'jump-squat',
     name: 'Jump Squat',
+    videoId: 'h5TmdMMtIT4',
     category: 'legs',
     pattern: 'squat',
     level: 3,
@@ -553,6 +583,7 @@ export const EXERCISES = [
   {
     id: 'nordic-curl-assisted',
     name: 'Assisted Nordic Curl',
+    videoId: 'o40Zd3WRbxg',
     category: 'legs',
     pattern: 'hinge',
     level: 3,
@@ -569,6 +600,7 @@ export const EXERCISES = [
   {
     id: 'shrimp-squat',
     name: 'Shrimp Squat',
+    videoId: 'natdne77ms4',
     category: 'legs',
     pattern: 'squat',
     level: 4,
@@ -586,6 +618,7 @@ export const EXERCISES = [
   {
     id: 'nordic-curl',
     name: 'Full Nordic Curl',
+    videoId: '7o_-YMUdLdM',
     category: 'legs',
     pattern: 'hinge',
     level: 4,
@@ -602,6 +635,7 @@ export const EXERCISES = [
   {
     id: 'single-leg-rdl',
     name: 'Single-Leg Romanian Deadlift',
+    videoId: 'wHktyQBgejo',
     category: 'legs',
     pattern: 'hinge',
     level: 4,
@@ -619,6 +653,7 @@ export const EXERCISES = [
   {
     id: 'pistol-squat',
     name: 'Pistol Squat',
+    videoId: 'AF3rz1fOIFk',
     category: 'legs',
     pattern: 'squat',
     level: 5,
@@ -638,6 +673,7 @@ export const EXERCISES = [
   {
     id: 'plank',
     name: 'Plank Hold',
+    videoId: 'xe2MXatLTUw',
     category: 'core',
     pattern: 'anti-extension',
     level: 1,
@@ -654,6 +690,7 @@ export const EXERCISES = [
   {
     id: 'dead-bug',
     name: 'Dead Bug',
+    videoId: '-8xqJ2xXs2A',
     category: 'core',
     pattern: 'anti-extension',
     level: 1,
@@ -671,6 +708,7 @@ export const EXERCISES = [
   {
     id: 'hollow-body-tuck',
     name: 'Hollow Body Tuck Hold',
+    videoId: 'Xk-JcNj6lfY',
     category: 'core',
     pattern: 'anti-extension',
     level: 2,
@@ -687,6 +725,7 @@ export const EXERCISES = [
   {
     id: 'side-plank',
     name: 'Side Plank',
+    videoId: 'BtM0a9x1F5o',
     category: 'core',
     pattern: 'anti-lateral-flexion',
     level: 2,
@@ -704,6 +743,7 @@ export const EXERCISES = [
   {
     id: 'hollow-body-hold',
     name: 'Hollow Body Hold',
+    videoId: 'SMpasIMw7LE',
     category: 'core',
     pattern: 'anti-extension',
     level: 3,
@@ -720,6 +760,7 @@ export const EXERCISES = [
   {
     id: 'rkc-plank',
     name: 'RKC Plank',
+    videoId: '9uX34tkHUto',
     category: 'core',
     pattern: 'anti-extension',
     level: 3,
@@ -736,6 +777,7 @@ export const EXERCISES = [
   {
     id: 'lsit-tuck',
     name: 'L-Sit Tuck Hold',
+    videoId: 'FQPRJOIhhSA',
     category: 'core',
     pattern: 'compression',
     level: 4,
@@ -752,6 +794,7 @@ export const EXERCISES = [
   {
     id: 'one-arm-plank',
     name: 'One-Arm Plank',
+    videoId: 'JJhcrPcnz4I',
     category: 'core',
     pattern: 'anti-rotation',
     level: 4,
@@ -769,6 +812,7 @@ export const EXERCISES = [
   {
     id: 'lsit-full',
     name: 'Full L-Sit Hold',
+    videoId: 'b52YpzcBqWA',
     category: 'core',
     pattern: 'compression',
     level: 5,
