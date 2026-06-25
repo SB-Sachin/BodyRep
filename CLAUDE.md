@@ -16,6 +16,10 @@ npm run preview  # serve the production build
 
 There is no test runner, linter, or typecheck configured — `package.json` only has the three Vite scripts above. Don't claim tests pass; there are none.
 
+## Git & deployment workflow
+
+This repo auto-deploys to Vercel on every push to `main`. After making code changes, **always commit and push to `main`** so the change deploys automatically — do not branch for this. Run `npm run build` first to confirm the build is green before pushing (a broken build = a broken deploy).
+
 ## AI configuration
 
 AI coaching is optional; the app is fully functional without it. To enable, set `VITE_GEMINI_API_KEY` in `.env` (copy from `.env.example`). Optional `VITE_GEMINI_MODEL` overrides the default `gemini-1.5-flash`. Calls are capped at 5/day client-side (enforced in the store, not the AI module) to stay in the free tier.

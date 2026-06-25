@@ -32,10 +32,15 @@ const blank = {
   ai: { date: dateKey(), count: 0, weeklySummary: null }, // weeklySummary: {week, text}
 }
 
-// Only persist the serializable data slice (not `hydrated`).
+// Persist only the data slice. `blank` is the data shape, so the persisted keys
+// are every key in `blank` except `hydrated`. Spreading the whole store instead
+// would carry the Zustand action functions, which IndexedDB's structured-clone
+// can't serialize — that throws DataCloneError and silently drops every save.
+const PERSIST_KEYS = Object.keys(blank).filter((k) => k !== 'hydrated')
 function serializable(s) {
-  const { hydrated, ...rest } = s
-  return rest
+  const out = {}
+  for (const k of PERSIST_KEYS) out[k] = s[k]
+  return out
 }
 
 let saveTimer = null
