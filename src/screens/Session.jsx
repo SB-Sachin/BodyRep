@@ -9,6 +9,7 @@ import ExerciseDemo from '../components/ExerciseDemo.jsx'
 import Icon from '../components/Icon.jsx'
 import FormCamera from '../components/FormCamera.jsx'
 import { aiConfigured } from '../ai/gemini.js'
+import { ensureNotifyPermission, scheduleNotification, cancelNotification, buzz } from '../utils/timers.js'
 import Complete from './Complete.jsx'
 
 export default function Session() {
@@ -28,6 +29,9 @@ export default function Session() {
   const [summary, setSummary] = useState(null)
 
   const start = () => {
+    // Ask for notification permission on this user gesture so rest/hold timers
+    // can alert in the background.
+    ensureNotifyPermission()
     updateProfile({ equipment, sessionLength: length, conditioning })
     const dayType = today?.dayType || 'full-push'
     const goal = today?.goal || 'hypertrophy'
@@ -118,8 +122,13 @@ function Player({ session, onFinish, onAbort }) {
   const [data, setData] = useState(() => session.exercises.map(() => []))
   const [resting, setResting] = useState(false)
   const [restLeft, setRestLeft] = useState(0)
+  const [holding, setHolding] = useState(false)
+  const [holdLeft, setHoldLeft] = useState(0)
   const [showFormCamera, setShowFormCamera] = useState(false)
   const timerRef = useRef(null)
+  const restEndRef = useRef(0)
+  const holdEndRef = useRef(0)
+  const holdTargetRef = useRef(0)
 
   const ex = session.exercises[exIndex]
   const meta = getExercise(ex.exerciseId)
@@ -132,16 +141,57 @@ function Player({ session, onFinish, onAbort }) {
   // Close the form-check overlay whenever we move to a different exercise.
   useEffect(() => { setShowFormCamera(false) }, [exIndex])
 
+  // Wall-clock countdown: derive remaining seconds from an end timestamp rather
+  // than decrementing a counter, so the display stays correct even after the tab
+  // is backgrounded and the interval is throttled/paused.
+  const secsLeft = (endMs) => Math.max(0, Math.round((endMs - Date.now()) / 1000))
+
   useEffect(() => {
     if (!resting) return
-    timerRef.current = setInterval(() => {
-      setRestLeft((t) => {
-        if (t <= 1) { clearInterval(timerRef.current); setResting(false); return 0 }
-        return t - 1
-      })
-    }, 1000)
+    const tick = () => {
+      const left = secsLeft(restEndRef.current)
+      setRestLeft(left)
+      if (left <= 0) { clearInterval(timerRef.current); setResting(false); buzz() }
+    }
+    tick()
+    timerRef.current = setInterval(tick, 500)
     return () => clearInterval(timerRef.current)
   }, [resting])
+
+  useEffect(() => {
+    if (!holding) return
+    const tick = () => {
+      const left = secsLeft(holdEndRef.current)
+      setHoldLeft(left)
+      if (left <= 0) {
+        clearInterval(timerRef.current)
+        setHolding(false)
+        setVal(holdTargetRef.current) // full hold completed → log the target
+        buzz()
+      }
+    }
+    tick()
+    timerRef.current = setInterval(tick, 250)
+    return () => clearInterval(timerRef.current)
+  }, [holding])
+
+  // On unmount (e.g. Quit), clear the interval and cancel any pending alerts.
+  useEffect(() => () => {
+    clearInterval(timerRef.current)
+    cancelNotification('bodyrep-rest')
+    cancelNotification('bodyrep-hold')
+  }, [])
+
+  // Recompute immediately when returning to the tab (interval may have stalled).
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState !== 'visible') return
+      if (resting) setRestLeft(secsLeft(restEndRef.current))
+      if (holding) setHoldLeft(secsLeft(holdEndRef.current))
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [resting, holding])
 
   const logSet = (feedback) => {
     const entry = isTime ? { seconds: Number(val) } : { reps: Number(val) }
@@ -149,15 +199,55 @@ function Player({ session, onFinish, onAbort }) {
     const next = data.map((arr, i) => (i === exIndex ? [...arr, entry] : arr))
     setData(next)
     if (next[exIndex].length < ex.sets) {
+      const setNum = next[exIndex].length + 1
+      restEndRef.current = Date.now() + ex.rest * 1000
       setRestLeft(ex.rest)
       setResting(true)
+      scheduleNotification({
+        tag: 'bodyrep-rest',
+        endTime: restEndRef.current,
+        title: 'Rest complete 💪',
+        body: `Time for set ${setNum} of ${ex.sets} · ${meta.name}`,
+      })
     }
   }
 
+  const endRest = () => {
+    clearInterval(timerRef.current)
+    setResting(false)
+    cancelNotification('bodyrep-rest')
+  }
+
+  const startHold = () => {
+    const target = Math.max(1, Number(val) || ex.target.seconds)
+    holdTargetRef.current = target
+    holdEndRef.current = Date.now() + target * 1000
+    setHoldLeft(target)
+    setHolding(true)
+    scheduleNotification({
+      tag: 'bodyrep-hold',
+      endTime: holdEndRef.current,
+      title: 'Hold complete',
+      body: `${target}s ${meta.name}${ex.perSide ? ' (per side)' : ''} — nice work`,
+    })
+  }
+
+  const stopHold = () => {
+    clearInterval(timerRef.current)
+    const achieved = Math.max(0, holdTargetRef.current - secsLeft(holdEndRef.current))
+    setHolding(false)
+    setVal(achieved) // stopped early → log the seconds actually held
+    cancelNotification('bodyrep-hold')
+  }
+
   const nextExercise = () => {
+    clearInterval(timerRef.current)
+    cancelNotification('bodyrep-rest')
+    cancelNotification('bodyrep-hold')
+    setResting(false)
+    setHolding(false)
     if (exIndex < session.exercises.length - 1) {
       setExIndex(exIndex + 1)
-      setResting(false)
     } else {
       const filled = { ...session, exercises: session.exercises.map((e, i) => ({ ...e, results: data[i] })) }
       onFinish(filled)
@@ -178,7 +268,7 @@ function Player({ session, onFinish, onAbort }) {
       </div>
 
       {resting ? (
-        <RestTimer left={restLeft} total={ex.rest} onSkip={() => { clearInterval(timerRef.current); setResting(false) }} nextLabel={meta.name} setNum={setsDone + 1} totalSets={ex.sets} />
+        <RestTimer left={restLeft} total={ex.rest} onSkip={endRest} nextLabel={meta.name} setNum={setsDone + 1} totalSets={ex.sets} />
       ) : (
         <>
           <div className="card mb-4 text-center">
@@ -192,20 +282,47 @@ function Player({ session, onFinish, onAbort }) {
           </div>
 
           {!allSetsDone ? (
-            <div className="card mb-4">
-              <div className="mb-3 text-center text-sm text-slate-400">How many {isTime ? 'seconds' : 'reps'} did you complete?</div>
-              <div className="mb-4 flex items-center justify-center gap-4">
-                <button aria-label="Decrease" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 active:scale-95" onClick={() => setVal((v) => Math.max(0, Number(v) - 1))}><Icon name="minus" size={20} /></button>
-                <input type="number" inputMode="numeric" value={val} onChange={(e) => setVal(e.target.value)}
-                  className="w-24 bg-transparent text-center text-5xl font-extrabold tnum outline-none" />
-                <button aria-label="Increase" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 active:scale-95" onClick={() => setVal((v) => Number(v) + 1)}><Icon name="plus" size={20} /></button>
+            isTime ? (
+              <div className="card mb-4">
+                <div className="mb-3 text-center text-sm text-slate-400">
+                  {holding ? 'Hold the position…' : 'Set the hold time, then start'}{ex.perSide ? ' (per side)' : ''}
+                </div>
+                <div className="mb-4 flex items-center justify-center gap-4">
+                  <button aria-label="Decrease" disabled={holding} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 active:scale-95 disabled:opacity-30" onClick={() => setVal((v) => Math.max(1, Number(v) - 5))}><Icon name="minus" size={20} /></button>
+                  <div className={`w-28 text-center text-5xl font-extrabold tnum ${holding && holdLeft <= 3 ? 'text-danger' : holding ? 'text-accent' : ''}`}>
+                    {holding ? holdLeft : val}<span className="align-top text-2xl text-slate-400">s</span>
+                  </div>
+                  <button aria-label="Increase" disabled={holding} className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 active:scale-95 disabled:opacity-30" onClick={() => setVal((v) => Number(v) + 5)}><Icon name="plus" size={20} /></button>
+                </div>
+                {holding ? (
+                  <button className="btn-danger w-full" onClick={stopHold}>Stop hold</button>
+                ) : (
+                  <>
+                    <button className="btn-accent w-full" onClick={startHold}>Start {Number(val)}s hold</button>
+                    <button className="btn-ghost mt-2 w-full" onClick={() => logSet()}>Log {Number(val)}s</button>
+                    <div className="mt-3 flex gap-2">
+                      <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('easy')}>Too easy</button>
+                      <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('hard')}>Too hard</button>
+                    </div>
+                  </>
+                )}
               </div>
-              <button className="btn-accent w-full" onClick={() => logSet()}>Log set</button>
-              <div className="mt-3 flex gap-2">
-                <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('easy')}>Too easy</button>
-                <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('hard')}>Too hard</button>
+            ) : (
+              <div className="card mb-4">
+                <div className="mb-3 text-center text-sm text-slate-400">How many reps did you complete?</div>
+                <div className="mb-4 flex items-center justify-center gap-4">
+                  <button aria-label="Decrease" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 active:scale-95" onClick={() => setVal((v) => Math.max(0, Number(v) - 1))}><Icon name="minus" size={20} /></button>
+                  <input type="number" inputMode="numeric" value={val} onChange={(e) => setVal(e.target.value)}
+                    className="w-24 bg-transparent text-center text-5xl font-extrabold tnum outline-none" />
+                  <button aria-label="Increase" className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 active:scale-95" onClick={() => setVal((v) => Number(v) + 1)}><Icon name="plus" size={20} /></button>
+                </div>
+                <button className="btn-accent w-full" onClick={() => logSet()}>Log set</button>
+                <div className="mt-3 flex gap-2">
+                  <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('easy')}>Too easy</button>
+                  <button className="btn-ghost flex-1 text-xs" onClick={() => logSet('hard')}>Too hard</button>
+                </div>
               </div>
-            </div>
+            )
           ) : (
             <button className="btn-accent mb-4 w-full" onClick={nextExercise}>
               {exIndex < session.exercises.length - 1 ? <>Next exercise <Icon name="arrowRight" size={18} /></> : <>Finish workout <Icon name="flag" size={18} /></>}
