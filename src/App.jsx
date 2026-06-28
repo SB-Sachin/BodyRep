@@ -4,6 +4,7 @@ import { useStore } from './store/useStore.js'
 import BottomNav from './components/BottomNav.jsx'
 import Onboarding from './screens/Onboarding.jsx'
 import Home from './screens/Home.jsx'
+import Plan from './screens/Plan.jsx'
 import Session from './screens/Session.jsx'
 import Progress from './screens/Progress.jsx'
 import SkillTreeScreen from './screens/SkillTreeScreen.jsx'
@@ -31,6 +32,7 @@ export default function App() {
     <>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/plan" element={<Plan />} />
         <Route path="/session" element={<Session />} />
         <Route path="/progress" element={<Progress />} />
         <Route path="/skills" element={<SkillTreeScreen />} />

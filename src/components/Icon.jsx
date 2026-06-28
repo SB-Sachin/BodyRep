@@ -12,6 +12,7 @@ const PATHS = {
   lock: <><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></>,
   trophy: <><path d="M6 4h12v4a6 6 0 0 1-12 0V4Z" /><path d="M6 6H4a2 2 0 0 0 0 4h2M18 6h2a2 2 0 0 1 0 4h-2" /><path d="M12 14v4M9 21h6M10 18h4" /></>,
   arrowRight: <><path d="M5 12h14" /><path d="m13 6 6 6-6 6" /></>,
+  chevronLeft: <path d="m15 6-6 6 6 6" />,
   x: <><path d="M18 6 6 18" /><path d="m6 6 12 12" /></>,
   plus: <><path d="M12 5v14M5 12h14" /></>,
   minus: <path d="M5 12h14" />,
