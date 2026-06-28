@@ -2,7 +2,8 @@ import { create } from 'zustand'
 import { loadState, saveState, appendSession } from '../db/db.js'
 import { dateKey, daysBetween, weekKey } from '../utils/dates.js'
 import { initialProgress, applyExerciseResult, applyDecay, resetWeeklyReps } from '../engine/progression.js'
-import { programForDays } from '../data/programs.js'
+import { programForDays, PROGRAMS } from '../data/programs.js'
+import { slotForDate } from '../engine/scheduleQueue.js'
 import {
   XP_PER_SESSION, XP_PER_SET, WEEKLY_XP_GOAL_PER_DAY, BADGES, tierForXp,
 } from '../data/gamification.js'
@@ -28,6 +29,7 @@ const blank = {
   plannedRestDays: [],  // weekday indices (0=Mon) the user marks as rest
   streakFreezes: 1,
   lastWorkoutDate: null,
+  scheduleAnchorDate: null, // date mapping to cycle index 0 (rolling queue origin)
   decayAppliedFor: null,
   ai: { date: dateKey(), count: 0, weeklySummary: null }, // weeklySummary: {week, text}
   chat: [],             // persisted coach conversation [{ id, role:'user'|'ai', text, ts, error? }]
@@ -104,6 +106,7 @@ export const useStore = create((set, get) => ({
       onboarded: true,
       profile: fullProfile,
       progress,
+      scheduleAnchorDate: dateKey(),
       weightLog: profile.weight ? [{ date: dateKey(), weight: profile.weight }] : [],
     })
     get()._checkBadges()
@@ -112,12 +115,14 @@ export const useStore = create((set, get) => ({
 
   updateProfile(patch) {
     const profile = { ...get().profile, ...patch }
+    let extra = {}
     if (patch.daysPerWeek) {
       const program = programForDays(patch.daysPerWeek)
+      if (program.id !== get().profile.programId) extra.scheduleAnchorDate = dateKey()
       profile.programId = program.id
       profile.programSets = program.setsPerExercise
     }
-    set({ profile })
+    set({ profile, ...extra })
     scheduleSave(get)
   },
 
@@ -194,7 +199,8 @@ export const useStore = create((set, get) => ({
     const totalReps = Object.values(s.progress.exercises || {}).reduce((a, e) => a + (e.totalReps || 0), 0)
     const anyL5 = Object.values(s.progress.trees || {}).some((t) => t.level >= 5)
     const unlocked = (id) => s.progress.exercises?.[id]?.unlocked
-    const streak = computeStreak(s.history, s.plannedRestDays)
+    const program = PROGRAMS[s.profile.programId] || PROGRAMS.A
+    const streak = computeStreak(s.history, s.plannedRestDays, { program, anchorDate: s.scheduleAnchorDate })
 
     if (s.history.length >= 1) give('first-workout')
     if (unlocked('pullup')) give('first-pullup')
@@ -260,20 +266,33 @@ export const useStore = create((set, get) => ({
 // ---- Selectors / helpers (pure, exported for components) ----
 
 // Current streak = consecutive days (counting back from today) that were either
-// a workout day or a planned rest day, until the first miss.
-export function computeStreak(history, plannedRestDays = []) {
+// a workout day or a rest day, until the first miss. When a scheduleCtx
+// ({ program, anchorDate }) is given, "rest day" comes from the rolling cycle;
+// otherwise it falls back to the weekday-based plannedRestDays set.
+export function computeStreak(history, plannedRestDays = [], scheduleCtx = null) {
   const workoutDays = new Set(history.map((h) => h.date))
-  const rest = new Set(plannedRestDays)
+  const restWeekdays = new Set(plannedRestDays)
+  const isRestDay = (key, weekday) => {
+    if (scheduleCtx?.program) {
+      return slotForDate({
+        program: scheduleCtx.program,
+        anchorDate: scheduleCtx.anchorDate,
+        history,
+        date: key,
+      }).rest
+    }
+    return restWeekdays.has(weekday)
+  }
   let streak = 0
   const d = new Date()
   if (!workoutDays.has(dateKey(d))) {
     const weekday = (d.getDay() + 6) % 7
-    if (!rest.has(weekday)) d.setDate(d.getDate() - 1)
+    if (!isRestDay(dateKey(d), weekday)) d.setDate(d.getDate() - 1)
   }
   for (let i = 0; i < 400; i++) {
     const key = dateKey(d)
     const weekday = (d.getDay() + 6) % 7
-    if (workoutDays.has(key) || rest.has(weekday)) {
+    if (workoutDays.has(key) || isRestDay(key, weekday)) {
       if (workoutDays.has(key)) streak += 1
       d.setDate(d.getDate() - 1)
     } else break
