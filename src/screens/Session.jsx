@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useStore } from '../store/useStore.js'
-import { PROGRAMS, sessionForToday } from '../data/programs.js'
+import { PROGRAMS } from '../data/programs.js'
+import { resolveSchedule } from '../engine/scheduleQueue.js'
 import { generateSession } from '../engine/workoutEngine.js'
 import { getExercise } from '../data/exercises.js'
 import { EQUIPMENT_OPTIONS } from '../data/gamification.js'
@@ -20,7 +21,10 @@ export default function Session() {
   const updateProfile = useStore((s) => s.updateProfile)
 
   const program = PROGRAMS[profile.programId] || PROGRAMS.A
-  const today = sessionForToday(program)
+  const anchorDate = useStore((s) => s.scheduleAnchorDate)
+  const history = useStore((s) => s.history)
+  const todaySlot = resolveSchedule({ program, anchorDate, history }).days[0]?.slot
+  const today = todaySlot && !todaySlot.rest ? todaySlot : null
 
   const [phase, setPhase] = useState('setup') // setup | play | complete
   const [equipment, setEquipment] = useState(profile.equipment || ['none'])
