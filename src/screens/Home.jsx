@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useStore, computeStreak, weeklyGoal, tierForXp } from '../store/useStore.js'
-import { PROGRAMS, sessionForToday } from '../data/programs.js'
+import { PROGRAMS } from '../data/programs.js'
+import { resolveSchedule, relativeDayLabel } from '../engine/scheduleQueue.js'
 import { nextTier } from '../data/gamification.js'
 import { getExercise } from '../data/exercises.js'
 import { dateKey } from '../utils/dates.js'
@@ -16,12 +17,14 @@ export default function Home() {
   const weeklyXp = useStore((s) => s.weeklyXp)
 
   const program = PROGRAMS[profile.programId] || PROGRAMS.A
-  const today = sessionForToday(program)
-  const weekdayIdx = (new Date().getDay() + 6) % 7
-  const isPlannedRest = plannedRestDays.includes(weekdayIdx)
+  const anchorDate = useStore((s) => s.scheduleAnchorDate)
+  const schedule = resolveSchedule({ program, anchorDate, history })
+  const todaySlot = schedule.days[0]?.slot
+  const isRestToday = !!todaySlot?.rest
+  const today = todaySlot && !todaySlot.rest ? todaySlot : null
   const doneToday = history.some((h) => h.date === dateKey())
 
-  const streak = computeStreak(history, plannedRestDays)
+  const streak = computeStreak(history, plannedRestDays, { program, anchorDate })
   const goal = weeklyGoal(profile)
   const pct = Math.min(100, Math.round((weeklyXp.xp / goal) * 100))
   const tier = tierForXp(xp)
@@ -49,7 +52,7 @@ export default function Home() {
         </div>
       </div>
 
-      {today && !doneToday && !isPlannedRest && (
+      {today && !doneToday && (
         <div className="card mb-4">
           <div className="mb-1 flex items-center justify-between">
             <h2 className="text-lg font-bold">{today.label}</h2>
@@ -72,7 +75,7 @@ export default function Home() {
         </div>
       )}
 
-      {!doneToday && (isPlannedRest || !today) && (
+      {!doneToday && isRestToday && (
         <div className="card mb-4 text-center">
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/5 text-slate-300"><Icon name="rest" size={26} /></div>
           <h2 className="mt-2 text-lg font-bold">Rest day</h2>
@@ -80,6 +83,8 @@ export default function Home() {
           <button className="btn-ghost mt-3 w-full" onClick={() => nav('/session')}>Train anyway</button>
         </div>
       )}
+
+      <UpNext days={schedule.days.slice(1, 4)} onOpen={() => nav('/plan')} />
 
       <div className="grid grid-cols-2 gap-3">
         <button className="card text-left transition active:scale-[0.98]" onClick={() => nav('/skills')}>
@@ -107,6 +112,27 @@ function PreviewTrees({ dayType, progress }) {
         const ex = id && getExercise(id)
         return <span key={t} className="pill bg-white/5 text-slate-300">{ex ? ex.name : t}</span>
       })}
+    </div>
+  )
+}
+
+function UpNext({ days, onOpen }) {
+  return (
+    <div className="card mb-4">
+      <div className="mb-2 flex items-center justify-between">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Up next</h3>
+        <button className="text-xs font-semibold text-accent" onClick={onOpen}>Full schedule →</button>
+      </div>
+      <ul className="space-y-1.5">
+        {days.map((d) => (
+          <li key={d.date} className="flex items-center justify-between text-sm">
+            <span className="text-slate-400">{relativeDayLabel(d.offset, d.date)}</span>
+            <span className={d.summary.isRest ? 'text-slate-500' : 'font-semibold text-slate-200'}>
+              {d.summary.isRest ? 'Rest' : d.summary.label}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
